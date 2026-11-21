@@ -1,0 +1,37 @@
+{
+	"schemaVersion": 1,
+	"id": "llmcraft",
+	"version": "${version}",
+	"name": "LLMinecraft",
+	"description": "Let an LLM play Minecraft by calling MCP tools. Exposes a local MCP server that can see, move, mine, build, fight and craft.",
+	"authors": [
+		"LLMinecraft contributors"
+	],
+	"contact": {
+		"homepage": "https://github.com/llmcraft/llmcraft",
+		"sources": "https://github.com/llmcraft/llmcraft"
+	},
+	"license": "MIT",
+	"icon": "assets/llmcraft/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"dev.llmcraft.LLMinecraft"
+		],
+		"client": [
+			"dev.llmcraft.client.LLMinecraftClient"
+		]
+	},
+	"mixins": [
+		{
+			"config": "llmcraft.client.mixins.json",
+			"environment": "client"
+		}
+	],
+	"depends": {
+		"fabricloader": ">=0.20.1",
+		"minecraft": "~26.3",
+		"java": ">=25",
+		"fabric-api": "*"
+	}
+}

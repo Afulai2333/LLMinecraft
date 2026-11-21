@@ -1,0 +1,13 @@
+{
+	"required": true,
+	"package": "dev.llmcraft.client.mixin",
+	"compatibilityLevel": "JAVA_25",
+	"client": [
+		"KeyboardHandlerMixin",
+		"MinecraftMixin",
+		"MouseHandlerMixin"
+	],
+	"injectors": {
+		"defaultRequire": 1
+	}
+}
