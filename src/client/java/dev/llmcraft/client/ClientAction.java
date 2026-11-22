@@ -20,4 +20,9 @@ public interface ClientAction {
 	default String name() {
 		return getClass().getSimpleName();
 	}
+
+	/** True when a wait/sleep must not be interrupted by threats (mob farms). */
+	default boolean forced() {
+		return false;
+	}
 }

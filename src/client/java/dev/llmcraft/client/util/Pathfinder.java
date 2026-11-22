@@ -3,6 +3,7 @@ package dev.llmcraft.client.util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.shapes.VoxelShape;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -108,7 +109,11 @@ public final class Pathfinder {
 				edges.add(new Edge(side, 1.0));
 			}
 			BlockPos up = side.above();
-			if (standable(level, up) && BlockUtil.passable(level, pos.above(2))) {
+			// A fence/wall is 1.5 blocks tall: the player cannot jump from the ground
+			// onto its top. Only accept step-ups whose support top is within jump height.
+			if (canJumpOnto(level, side)
+					&& standable(level, up)
+					&& BlockUtil.passable(level, pos.above(2))) {
 				edges.add(new Edge(up, 1.9));
 			}
 			BlockPos down = side;
@@ -124,6 +129,21 @@ public final class Pathfinder {
 			}
 		}
 		return edges;
+	}
+
+	/**
+	 * True when the player can jump from the current feet level onto the top of
+	 * {@code supportBlock}. Fences and walls have a 1.5-block collision top, which is above
+	 * vanilla jump height (about 1.25 blocks); treating them as one-block steps produces
+	 * routes that fail in game.
+	 */
+	private static boolean canJumpOnto(Level level, BlockPos supportBlock) {
+		if (!level.isLoaded(supportBlock)) {
+			return false;
+		}
+		VoxelShape shape = level.getBlockState(supportBlock)
+				.getCollisionShape(level, supportBlock);
+		return shape.isEmpty() || shape.max(Direction.Axis.Y) <= 1.05;
 	}
 
 	private static boolean standable(Level level, BlockPos pos) {

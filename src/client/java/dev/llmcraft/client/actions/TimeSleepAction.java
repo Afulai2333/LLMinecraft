@@ -14,11 +14,18 @@ import net.minecraft.client.player.LocalPlayer;
  */
 public final class TimeSleepAction implements ClientAction {
 	private final int ticks;
+	private final boolean force;
 	private int age;
 	private long startWorldTime;
 
-	public TimeSleepAction(int ticks) {
+	public TimeSleepAction(int ticks, boolean force) {
 		this.ticks = Math.max(1, ticks);
+		this.force = force;
+	}
+
+	@Override
+	public boolean forced() {
+		return force;
 	}
 
 	@Override
@@ -50,6 +57,7 @@ public final class TimeSleepAction implements ClientAction {
 				+ "s with the world running.");
 		json.addProperty("seconds", StateSnapshot.round(ticks / 20.0));
 		json.addProperty("requested_ticks", ticks);
+		json.addProperty("forced", force);
 		json.addProperty("world_ticks", worldTicks);
 		json.addProperty("time_of_day", dayTime);
 		json.addProperty("phase", StateSnapshot.phase(dayTime));

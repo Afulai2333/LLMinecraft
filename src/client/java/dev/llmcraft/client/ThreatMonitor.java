@@ -72,6 +72,18 @@ public final class ThreatMonitor {
 			player.sendOverlayMessage(net.minecraft.network.chat.Component.literal(
 					"! " + nearest.name + " " + StateSnapshot.round(nearest.distance) + "m"));
 		}
+		if (nearest.distance <= 8 && ClientBridge.isWaiting() && !ClientBridge.isWaitingForced()) {
+			String message = "Threat interrupted wait: " + nearest.name + " at "
+					+ StateSnapshot.round(nearest.distance) + " blocks";
+			ClientBridge.cancelAll(message);
+			JsonObject event = new JsonObject();
+			event.addProperty("message", message);
+			event.addProperty("entity_id", nearest.entity.getId());
+			event.addProperty("type", nearest.type);
+			event.addProperty("distance", StateSnapshot.round(nearest.distance));
+			EventLog.record("wait_interrupted", "warning", event);
+			return;
+		}
 		if (config.autoDefend && ClientBridge.queueSize() == 0) {
 			autoDefend(minecraft, player, nearest, config);
 		}

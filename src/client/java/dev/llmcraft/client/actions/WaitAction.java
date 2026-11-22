@@ -10,10 +10,17 @@ import net.minecraft.client.player.LocalPlayer;
 /** Lets game time pass (furnaces, crop growth, mob movement). */
 public final class WaitAction implements ClientAction {
 	private final int ticks;
+	private final boolean force;
 	private int age;
 
-	public WaitAction(int ticks) {
+	public WaitAction(int ticks, boolean force) {
 		this.ticks = ticks;
+		this.force = force;
+	}
+
+	@Override
+	public boolean forced() {
+		return force;
 	}
 
 	@Override
@@ -25,6 +32,7 @@ public final class WaitAction implements ClientAction {
 		JsonObject result = new JsonObject();
 		result.addProperty("ok", true);
 		result.addProperty("message", "Waited " + String.format("%.1f", ticks / 20.0) + " seconds.");
+		result.addProperty("forced", force);
 		if (player != null) {
 			result.addProperty("health", StateSnapshot.round(player.getHealth()));
 			result.addProperty("food", player.getFoodData().getFoodLevel());

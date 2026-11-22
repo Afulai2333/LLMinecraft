@@ -141,6 +141,23 @@ public final class ClientBridge {
 		return QUEUE.size() + (current == null ? 0 : 1);
 	}
 
+	public static String currentActionName() {
+		Entry entry = current;
+		return entry == null ? null : entry.action.name();
+	}
+
+	/** True while a plain wait or time-sleep is holding the agent. */
+	public static boolean isWaiting() {
+		String name = currentActionName();
+		return "wait".equals(name) || "sleep".equals(name);
+	}
+
+	/** True when the active wait/sleep explicitly opted out of threat interruption. */
+	public static boolean isWaitingForced() {
+		Entry entry = current;
+		return entry != null && entry.action.forced();
+	}
+
 	private static void finish(ToolResult result) {
 		Entry entry = current;
 		current = null;

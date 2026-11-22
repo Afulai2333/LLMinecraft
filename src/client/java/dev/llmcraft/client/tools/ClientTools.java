@@ -18,6 +18,7 @@ import dev.llmcraft.client.actions.GuiKeyAction;
 import dev.llmcraft.client.actions.GuiScrollAction;
 import dev.llmcraft.client.actions.GuiTypeAction;
 import dev.llmcraft.client.actions.JumpAction;
+import dev.llmcraft.client.actions.JumpOnAction;
 import dev.llmcraft.client.actions.LookAction;
 import dev.llmcraft.client.actions.MineAction;
 import dev.llmcraft.client.actions.MoveAction;
@@ -191,6 +192,24 @@ public final class ClientTools {
 				""", false, false, args ->
 				ClientBridge.submit(new JumpAction(Args.optBoolean(args, "forward", false)), 40)));
 
+		registry.register(tool("jump_on", "Jump onto a block",
+				"""
+				Jump onto the top of a specific block, including sprint-jumps across gaps.
+				The block top may be up to one block above the player (not a fence/wall) and
+				up to ~4.5 blocks horizontally. Long jumps automatically sprint; set sprint=true
+				to force sprinting on a medium jump. Use goto for ordinary long routes.
+				""",
+				"""
+				{"type":"object","properties":{
+				  "x":{"type":"integer"},"y":{"type":"integer"},"z":{"type":"integer"},
+				  "sprint":{"type":"boolean","default":false,
+				    "description":"Force sprint for a parkour jump"}
+				},"required":["x","y","z"],"additionalProperties":false}
+				""", false, false, args -> ClientBridge.submit(
+				new JumpOnAction(new BlockPos(Args.requireInt(args, "x"),
+						Args.requireInt(args, "y"), Args.requireInt(args, "z")),
+						Args.optBoolean(args, "sprint", false)), 90)));
+
 		registry.register(tool("goto", "Walk to coordinates",
 				"""
 				Pathfind and walk to a block position (x,z required, y optional). The pathfinder only walks,
@@ -240,19 +259,23 @@ public final class ClientTools {
 				specify face as the direction from the target to the support (the block being clicked).
 				Example: target is air above grass, support is below, face="down".
 				The item is taken from the selected hotbar slot, or from a hotbar item matching 'block'.
-				The player must be within reach and not standing in the target cell.
+				The player must be within reach and not standing in the target cell, unless
+				jump=true: then the player jumps first and the block is placed under the feet.
 				""",
 				"""
 				{"type":"object","properties":{
 				  "x":{"type":"integer"},"y":{"type":"integer"},"z":{"type":"integer"},
 				  "block":{"type":"string","description":"Optional hotbar item id or name"},
 				  "face":{"type":"string","enum":["up","down","north","south","east","west"],
-				    "description":"Direction from target to support; omitted = auto"}
+				    "description":"Direction from target to support; omitted = auto"},
+				  "jump":{"type":"boolean","default":false,
+				    "description":"Jump first, then place under the feet (pillar up)"}
 				},"required":["x","y","z"],"additionalProperties":false}
 				""", false, true, args -> ClientBridge.submit(
 				new PlaceAction(new BlockPos(Args.requireInt(args, "x"),
 						Args.requireInt(args, "y"), Args.requireInt(args, "z")),
-						Args.optString(args, "block"), Args.optString(args, "face")), 140)));
+						Args.optString(args, "block"), Args.optString(args, "face"),
+						Args.optBoolean(args, "jump", false)), 140)));
 
 		registry.register(tool("use", "Use / interact",
 				"""
@@ -578,14 +601,21 @@ public final class ClientTools {
 		}));
 
 		registry.register(tool("wait", "Wait",
-				"Let game time pass without moving. Useful for furnaces, crop growth, or letting mobs move.",
 				"""
-				{"type":"object","properties":{"seconds":{"type":"number","minimum":0.1,"maximum":30,"default":1}},
-				"additionalProperties":false}
+				Let game time pass without moving. Useful for furnaces, crop growth, or letting mobs move.
+				By default a hostile within 8 blocks interrupts the wait. Set force=true for a
+				known-safe wait such as a mob farm, where you do not want the wait cancelled.
+				""",
+				"""
+				{"type":"object","properties":{
+				  "seconds":{"type":"number","minimum":0.1,"maximum":30,"default":1},
+				  "force":{"type":"boolean","default":false}
+				},"additionalProperties":false}
 				""", false, false, args -> {
 			double seconds = Args.optDouble(args, "seconds") == null ? 1.0 : Args.optDouble(args, "seconds");
 			int ticks = Math.clamp((int) Math.round(seconds * 20.0), 1, maxActionTicks);
-			return ClientBridge.submit(new WaitAction(ticks), ticks + 20);
+			return ClientBridge.submit(new WaitAction(ticks,
+					Args.optBoolean(args, "force", false)), ticks + 20);
 		}));
 
 		registry.register(tool("close_screen", "Close GUI",
@@ -605,12 +635,15 @@ public final class ClientTools {
 				""",
 				"""
 				{"type":"object","properties":{
-				  "seconds":{"type":"number","minimum":0.1,"maximum":60,"default":5}
+				  "seconds":{"type":"number","minimum":0.1,"maximum":60,"default":5},
+				  "force":{"type":"boolean","default":false,
+				    "description":"Do not interrupt for nearby hostiles (mob farms)."}
 				},"additionalProperties":false}
 				""", false, false, args -> {
 			double seconds = Args.optDouble(args, "seconds") == null ? 5.0 : Args.optDouble(args, "seconds");
 			int ticks = Math.clamp((int) Math.round(seconds * 20.0), 1, 1200);
-			return ClientBridge.submit(new TimeSleepAction(ticks), ticks + 40);
+			return ClientBridge.submit(new TimeSleepAction(ticks,
+					Args.optBoolean(args, "force", false)), ticks + 40);
 		}));
 
 		registry.register(tool("sleep_in_bed", "Sleep in a bed",

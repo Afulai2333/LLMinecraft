@@ -21,7 +21,7 @@ Agent / LLM  -- MCP Streamable HTTP -->  LLMinecraft (Fabric client)
 
 - **Local MCP server** on `http://127.0.0.1:8765/mcp` with JSON-RPC, tool discovery,
   authentication and health endpoint.
-- **34 tools** covering perception, movement, block interaction, inventory, crafting,
+- **35 tools** covering perception, movement, block interaction, inventory, crafting,
   combat, chat, screenshots and full GUI/menu operation.
 - **Menus are playable by the agent**: main menu, onboarding, world list, world creation,
   options, container screens and dialog buttons, via widget indexes or GUI coordinates.
@@ -62,17 +62,17 @@ Agent / LLM  -- MCP Streamable HTTP -->  LLMinecraft (Fabric client)
 ## Install
 
 1. Install Fabric Loader for Minecraft 26.3.
-2. Put `llmcraft-0.1.0.jar` and `fabric-api-0.166.2+26.3.jar` into `.minecraft/mods/`.
+2. Put `llmcraft-0.1.1.jar` and `fabric-api-0.166.2+26.3.jar` into `.minecraft/mods/`.
 3. Launch the game and join a world.
 4. Look for this log line:
 
    ```text
-   MCP server listening on http://127.0.0.1:8765/mcp (34 tools)
+   MCP server listening on http://127.0.0.1:8765/mcp (35 tools)
    ```
 
 5. Check in game with `/llmcraft status`.
 
-The jar is at `build/libs/llmcraft-0.1.0.jar`.
+The jar is at `build/libs/llmcraft-0.1.1.jar`.
 
 ## Build from source
 
