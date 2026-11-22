@@ -1,10 +1,14 @@
-﻿# LLMinecraft
+# LLMinecraft
 
 A Fabric mod for **Minecraft: Java Edition 26.3** that lets a large language model play the
-game by calling **MCP tools**. The mod embeds a local MCP server in the client and maps 34
+game by calling **MCP tools**. The mod embeds a local MCP server in the client and maps 35
 tools onto a real player: see the world, walk, mine, build, craft, fight, eat, chat and take
 screenshots. Any MCP-capable agent (Claude Desktop, Cursor, a custom loop) can connect; no
 external bridge process is required for HTTP-native clients.
+
+**Agent skill:** [LLMinecraft-skill](https://github.com/Afulai2333/LLMinecraft-skill) explains
+the full play loop, menu control and safety rules for an LLM. Skill package:
+[0.1.1](https://github.com/Afulai2333/LLMinecraft-skill/releases/tag/v0.1.1).
 
 ```text
 Agent / LLM  -- MCP Streamable HTTP -->  LLMinecraft (Fabric client)
